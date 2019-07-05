@@ -60,7 +60,7 @@ DummyClasses(Cubic, Cubic);
 #define ONE_OFF_DEBUG 0
 #define ONE_OFF_DEBUG_MATHEMATICA 0
 
-#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_ANDROID)
+#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_HORIZON)
     #define SK_RAND(seed) rand()
 #else
     #define SK_RAND(seed) rand_r(&seed)

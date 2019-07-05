@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_WIN) && \
-    !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC)
+    !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_HORIZON)
 
     #ifdef __APPLE__
         #include "TargetConditionals.h"
@@ -29,6 +29,8 @@
         #define SK_BUILD_FOR_WIN
     #elif defined(ANDROID) || defined(__ANDROID__)
         #define SK_BUILD_FOR_ANDROID
+    #elif defined(__SWITCH__)
+        #define SK_BUILD_FOR_HORIZON
     #elif defined(linux) || defined(__linux) || defined(__FreeBSD__) || \
           defined(__OpenBSD__) || defined(__sun) || defined(__NetBSD__) || \
           defined(__DragonFly__) || defined(__Fuchsia__) || \

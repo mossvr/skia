@@ -19,18 +19,18 @@ declare_args() {
 
 declare_args() {
   skia_use_angle = false
-  skia_use_egl = false
+  skia_use_egl = is_horizon
   skia_use_expat = true
   skia_use_experimental_xform = false
   skia_use_ffmpeg = false
   skia_use_fontconfig = is_linux
   skia_use_fonthost_mac = is_mac
-  skia_use_freetype = is_android || is_fuchsia || is_linux
+  skia_use_freetype = is_android || is_fuchsia || is_linux || is_horizon
   skia_use_fixed_gamma_text = is_android
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
-  skia_use_libwebp = !is_fuchsia
-  skia_use_lua = is_skia_dev_build && !is_ios
+  skia_use_libwebp = !is_fuchsia && !is_horizon
+  skia_use_lua = is_skia_dev_build && !is_ios && !is_horizon
   skia_use_opencl = false
   skia_use_piex = !is_win
   skia_use_wuffs = false
@@ -44,7 +44,7 @@ declare_args() {
   skia_enable_ccpr = true
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_discrete_gpu = true
-  skia_enable_pdf = true
+  skia_enable_pdf = !is_horizon
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_skpicture = true
   skia_enable_skvm_jit = is_skia_dev_build && target_cpu == "x64" && is_linux
@@ -63,10 +63,10 @@ declare_args() {
   skia_include_multiframe_procs = false
 }
 declare_args() {
-  skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
+  skia_use_dng_sdk = !is_horizon && !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
   skia_enable_atlas_text = is_skia_dev_build && skia_enable_gpu
-  skia_enable_fontmgr_empty = false
+  skia_enable_fontmgr_empty = is_horizon
   skia_enable_fontmgr_custom =
       is_linux && skia_use_freetype && !skia_use_fontconfig
   skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
@@ -152,6 +152,7 @@ config("skia_private") {
   }
   libs = []
   lib_dirs = []
+  include_dirs = []
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
   }
@@ -946,7 +947,7 @@ component("skia") {
 
   defines = []
   if (!skia_enable_skpicture) {
-    defines = [ "SK_DISABLE_SKPICTURE" ]
+    defines += [ "SK_DISABLE_SKPICTURE" ]
     public -= skia_skpicture_public
     sources -= skia_skpicture_sources
     sources -= [ "//src/effects/imagefilters/SkPictureImageFilter.cpp" ]
@@ -970,6 +971,12 @@ component("skia") {
       "OleAut32.lib",
       "User32.lib",
       "Usp10.lib",
+    ]
+  } else if (is_horizon) {
+    sources += [
+      "src/ports/SkOSFile_horizon.cpp",
+      "src/ports/SkDebug_stdio.cpp",
+      "src/ports/SkTLS_horizon.cpp",
     ]
   } else {
     sources += [
@@ -1937,7 +1944,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (!is_win) {
+  if (!is_win && !is_horizon) {
     test_app("remote_demo") {
       sources = [
         "tools/remote_demo.cpp",
@@ -2056,7 +2063,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (!is_ios && target_cpu != "wasm" && !(is_win && target_cpu == "arm64")) {
+  if (!is_ios && !is_horizon && target_cpu != "wasm" && !(is_win && target_cpu == "arm64")) {
     test_app("skiaserve") {
       sources = [
         "tools/skiaserve/Request.cpp",
@@ -2327,6 +2334,13 @@ if (skia_enable_tools) {
         "tools/sk_app/ios/RasterWindowContext_ios.cpp",
         "tools/sk_app/ios/Window_ios.cpp",
         "tools/sk_app/ios/main_ios.cpp",
+      ]
+    } else if (is_horizon) {
+      sources += [
+        #"tools/sk_app/horizon/GLWindowContext_horizon.cpp",
+        #"tools/sk_app/horizon/RasterWindowContext_horizon.cpp",
+        #"tools/sk_app/horizon/Window_horizon.cpp",
+        #"tools/sk_app/horizon/main_horizon.cpp",
       ]
     }
 

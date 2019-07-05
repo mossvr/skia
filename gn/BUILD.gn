@@ -36,6 +36,8 @@ config("default") {
   defines = []
   ldflags = []
   libs = []
+  include_dirs = []
+  lib_dirs = []
 
   if (werror) {
     if (is_win) {
@@ -156,6 +158,19 @@ config("default") {
     cflags += [ "--sysroot=$ndk/sysroot" ]
     cflags_cc += [ "-isystem$ndk/sources/cxx-stl/llvm-libc++/include" ]
     ldflags += [ "-static-libstdc++" ]
+  }
+
+  if (is_horizon) {
+    defines += [ "__SWITCH__", "_GNU_SOURCE" ]
+    include_dirs += [
+      "$devkitpro/portlibs/switch/include",
+      "$devkitpro/libnx/include",
+    ]
+    lib_dirs += [
+      "$devkitpro/portlibs/switch/lib",
+      "$devkitpro/libnx/lib",
+    ]
+    libs += [ "nx" ]
   }
 
   if (is_ios) {

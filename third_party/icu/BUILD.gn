@@ -8,7 +8,7 @@ import("../third_party.gni")
 import("icu.gni")
 
 declare_args() {
-  skia_use_system_icu = is_official_build
+  skia_use_system_icu = is_official_build && !is_horizon
 }
 
 if (skia_use_system_icu) {
@@ -91,6 +91,11 @@ if (skia_use_system_icu) {
       defines += [ "__i386__" ]
     }
     sources = icu_sources
+    
+    if (is_horizon) {
+      defines += [ "U_HAVE_MMAP=0" ]
+    }
+
     if (is_win) {
       deps = [
         ":icudata",

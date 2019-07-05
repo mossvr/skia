@@ -315,7 +315,7 @@ static void find_culprit() {
     }
 #else
     #include <signal.h>
-    #if !defined(SK_BUILD_FOR_ANDROID)
+    #if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_HORIZON)
         #include <execinfo.h>
 
 #endif
@@ -340,7 +340,7 @@ static void find_culprit() {
         }
         find_culprit();
 
-    #if !defined(SK_BUILD_FOR_ANDROID)
+    #if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_HORIZON)
         void* stack[64];
         int count = backtrace(stack, SK_ARRAY_COUNT(stack));
         char** symbols = backtrace_symbols(stack, count);

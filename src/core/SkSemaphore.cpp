@@ -63,6 +63,17 @@
         }
         void wait() { WaitForSingleObject(fSemaphore, INFINITE/*timeout in ms*/); }
     };
+#elif defined(SK_BUILD_FOR_HORIZON)
+    #include <switch.h>
+
+    struct SkSemaphore::OSSemaphore {
+        Semaphore fSemaphore;
+
+        OSSemaphore()  { semaphoreInit(&fSemaphore, 0); }
+        ~OSSemaphore() { }
+        void signal(int n) { semaphoreSignal(&fSemaphore); }
+        void wait() { semaphoreWait(&fSemaphore); }
+    };
 #else
     // It's important we test for Mach before this.  This code will compile but not work there.
     #include <errno.h>

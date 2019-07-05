@@ -21,6 +21,10 @@
         GetNativeSystemInfo(&sysinfo);
         return (int)sysinfo.dwNumberOfProcessors;
     }
+#elif defined(SK_BUILD_FOR_HORIZON)
+    static int num_cores() {
+        return 4;
+    }
 #else
     #include <unistd.h>
     static int num_cores() {
