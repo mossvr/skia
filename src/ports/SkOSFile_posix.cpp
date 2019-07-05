@@ -11,11 +11,19 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkOSFile.h"
 
+#if defined(SK_BUILD_FOR_HORIZON)
+#define SK_HAS_MMAP 0
+#else
+#define SK_HAS_MMAP 1
+#endif
+
 #include <dirent.h>
 #include <new>
 #include <stdio.h>
 #include <string.h>
+#if SK_HAS_MMAP
 #include <sys/mman.h>
+#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -71,10 +79,13 @@ bool sk_fidentical(FILE* a, FILE* b) {
 }
 
 void sk_fmunmap(const void* addr, size_t length) {
+#if SK_HAS_MMAP
     munmap(const_cast<void*>(addr), length);
+#endif
 }
 
 void* sk_fdmmap(int fd, size_t* size) {
+#if SK_HAS_MMAP
     struct stat status;
     if (0 != fstat(fd, &status)) {
         return nullptr;
@@ -94,6 +105,9 @@ void* sk_fdmmap(int fd, size_t* size) {
 
     *size = fileSize;
     return addr;
+#else
+    return nullptr;
+#endif
 }
 
 int sk_fileno(FILE* f) {
@@ -109,12 +123,35 @@ void* sk_fmmap(FILE* f, size_t* size) {
     return sk_fdmmap(fd, size);
 }
 
+#if defined(SK_BUILD_FOR_HORIZON)
+static ssize_t sk_pread(int fd, void* buf, size_t n, off_t off)
+{
+  off_t cur_pos;
+  ssize_t num_read;
+  
+  if ((cur_pos = lseek(fd, 0, SEEK_CUR)) == (off_t)-1)
+    return -1;
+
+  if (lseek(fd, off, SEEK_SET) == (off_t)-1)
+    return -1;
+
+  num_read = read(fd, buf, n);
+
+  if (lseek(fd, cur_pos, SEEK_SET) == (off_t)-1)
+    return -1;
+
+  return (ssize_t)num_read;
+}
+#else
+#define sk_pread pread
+#endif
+
 size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
     int fd = sk_fileno(file);
     if (fd < 0) {
         return SIZE_MAX;
     }
-    ssize_t bytesRead = pread(fd, buffer, count, offset);
+    ssize_t bytesRead = sk_pread(fd, buffer, count, offset);
     if (bytesRead < 0) {
         return SIZE_MAX;
     }

@@ -974,7 +974,7 @@ component("skia") {
     ]
   } else if (is_horizon) {
     sources += [
-      "src/ports/SkOSFile_horizon.cpp",
+      "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkTLS_horizon.cpp",
     ]
@@ -2334,13 +2334,6 @@ if (skia_enable_tools) {
         "tools/sk_app/ios/RasterWindowContext_ios.cpp",
         "tools/sk_app/ios/Window_ios.cpp",
         "tools/sk_app/ios/main_ios.cpp",
-      ]
-    } else if (is_horizon) {
-      sources += [
-        #"tools/sk_app/horizon/GLWindowContext_horizon.cpp",
-        #"tools/sk_app/horizon/RasterWindowContext_horizon.cpp",
-        #"tools/sk_app/horizon/Window_horizon.cpp",
-        #"tools/sk_app/horizon/main_horizon.cpp",
       ]
     }
 
