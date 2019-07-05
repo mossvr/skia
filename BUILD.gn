@@ -66,9 +66,9 @@ declare_args() {
   skia_use_dng_sdk = !is_horizon && !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
   skia_enable_atlas_text = is_skia_dev_build && skia_enable_gpu
-  skia_enable_fontmgr_empty = is_horizon
-  skia_enable_fontmgr_custom =
-      is_linux && skia_use_freetype && !skia_use_fontconfig
+  skia_enable_fontmgr_empty = false
+  skia_enable_fontmgr_custom = skia_use_freetype &&
+      (is_horizon || (is_linux && !skia_use_fontconfig))
   skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
   skia_enable_fontmgr_fuchsia = is_fuchsia
